@@ -13,7 +13,6 @@
 <body>
 <div class="page">
 
-  <!-- Topbar -->
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
@@ -24,7 +23,6 @@
     </div>
   </header>
 
-  <!-- Hero section -->
   <section class="hero" id="hero">
     <div class="hero-bg" id="heroBg"></div>
     <div class="hero-scrim"></div>
@@ -54,10 +52,8 @@
     </div>
   </section>
 
-  <!-- KPIs -->
   <section class="kpis" id="kpis"></section>
 
-  <!-- Charts -->
   <section class="charts">
     <div class="chart-card">
       <h3>Distribución por calificación</h3>
@@ -79,31 +75,25 @@
       </div>
     </div>
   </section>
-
-  <!-- Toolbar -->
   <section class="toolbar">
     <div class="toolbar-left">
       <h3>Catálogo de series</h3>
       <p class="toolbar-sub" id="resultCount">Cargando series...</p>
     </div>
     <div class="toolbar-right">
-      <!-- Buscador -->
       <div class="search-box">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="searchInput" type="text" placeholder="Buscar serie...">
       </div>
-      <!-- Filtros de país -->
       <div class="filter-chips" id="countryChips">
         <div class="chip active" data-country="all">Todos</div>
         <div class="chip" data-country="JP">JP Japón</div>
         <div class="chip" data-country="US">US EE.UU.</div>
       </div>
-      <!-- Filtro de favoritos -->
       <div class="chip fav-chip" id="favFilterBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Mis favoritos
       </div>
-      <!-- Ordenar -->
       <div class="sort-chips" id="sortChips">
         <div class="chip active" data-sort="rating">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -120,23 +110,19 @@
       </div>
     </div>
   </section>
-
-  <!-- Loading state -->
+  
   <div class="loading-state" id="loadingState">
     <div class="loading-spinner"></div>
     <p>Cargando series...</p>
   </div>
-
-  <!-- Grid -->
+  
   <section class="grid" id="grid"></section>
-
-  <!-- Paginación -->
+  
   <nav class="pagination" id="pagination"></nav>
 
   <footer class="footer">
-    Datos obtenidos vía <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB API</a> . Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.
+    Datos obtenidos vía <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB API</a> . Este producto usa la API de TMDB sin fines de lucro.
   </footer>
-
 </div>
 
 <script src="data.js"></script>
