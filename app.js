@@ -18,12 +18,16 @@ const shareIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const closeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 const starOutline = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-// Las inicializamos vacías para esperar al JSON
-let currentData = [];
 const favorites = new Set();
 const hidden = new Set();
 let heroIndex = 0;
 let heroPool = [];
+
+// --- Variables maestras para los filtros ---
+let currentSearch = "";
+let currentCountry = "all";
+let currentSort = "rating";
+let showOnlyFavs = false;
 
 function renderKPIs(){
   const total = DATA.length;
@@ -183,17 +187,83 @@ function cardTemplate(d, idx){
   `;
 }
 
-function renderGrid(){
-  const visible = currentData.filter(d => !hidden.has(d.id));
-  document.getElementById('resultCount').textContent = visible.length;
+// --- Nueva función centralizada para aplicar todos los filtros ---
+function applyFilters() {
+  // 1. Filtrar los datos
+  let filtered = DATA.filter(d => {
+    // Si la ocultó el usuario con la X
+    if (hidden.has(d.id)) return false;
+    // Si estamos viendo solo favoritos
+    if (showOnlyFavs && !favorites.has(d.id)) return false;
+    // Filtro de País
+    if (currentCountry !== "all" && d.country !== currentCountry) return false;
+    // Buscador de texto
+    if (currentSearch && !d.title.toLowerCase().includes(currentSearch)) return false;
+    
+    return true;
+  });
 
+  // 2. Ordenar los datos resultantes
+  filtered.sort((a,b) => {
+    if(currentSort === 'rating') return b.rating - a.rating;
+    if(currentSort === 'popularity') return b.popularity - a.popularity;
+    if(currentSort === 'recent') return b.year - a.year;
+    return 0;
+  });
+
+  // 3. Actualizar el texto del contador
+  const totalFound = filtered.length;
+  // Cortamos el array para mostrar un máximo de 20 tarjetas
+  const visible = filtered.slice(0, 20);
+  
+  document.getElementById('resultCount').textContent = `Mostrando ${visible.length} de ${totalFound} series`;
+
+  // 4. Inyectar al HTML
   const gridEl = document.getElementById('grid');
   if(visible.length === 0){
-    gridEl.innerHTML = `<div class="empty-state">No se encontraron series con ese nombre.</div>`;
+    gridEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👻</div>
+        <h4>Sin resultados</h4>
+        <p>Prueba escribiendo otro nombre o cambiando los filtros superiores.</p>
+      </div>`;
     return;
   }
+  
   gridEl.innerHTML = visible.map((d,i)=>cardTemplate(d,i)).join('');
 }
+
+// --- Listeners para el Buscador y los Filtros ---
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  currentSearch = e.target.value.toLowerCase();
+  applyFilters();
+});
+
+document.getElementById('countryChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  document.querySelectorAll('#countryChips .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentCountry = chip.dataset.country;
+  applyFilters();
+});
+
+document.getElementById('favFilterBtn').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  btn.classList.toggle('active');
+  showOnlyFavs = btn.classList.contains('active');
+  applyFilters();
+});
+
+document.getElementById('sortChips').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  document.querySelectorAll('#sortChips .chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  currentSort = chip.dataset.sort;
+  applyFilters();
+});
 
 document.getElementById('grid').addEventListener('click', (e)=>{
   const btn = e.target.closest('.mini-btn');
@@ -201,11 +271,17 @@ document.getElementById('grid').addEventListener('click', (e)=>{
   const card = btn.closest('.show-card');
   const id = Number(card.dataset.id);
   const action = btn.dataset.action;
-  const show = DATA.find(d=>d.id===id);
 
   if(action === 'fav'){
-    if(favorites.has(id)){ favorites.delete(id); btn.classList.remove('active'); }
-    else { favorites.add(id); btn.classList.add('active'); }
+    if(favorites.has(id)){ 
+      favorites.delete(id); 
+      btn.classList.remove('active'); 
+      if(showOnlyFavs) applyFilters(); // Si está en la pestaña favoritos, lo desaparece al instante
+    }
+    else { 
+      favorites.add(id); 
+      btn.classList.add('active'); 
+    }
   }
   if(action === 'info'){
     card.classList.toggle('expanded');
@@ -217,42 +293,21 @@ document.getElementById('grid').addEventListener('click', (e)=>{
     hidden.add(id);
     card.style.transition = 'opacity .2s ease';
     card.style.opacity = '0';
-    setTimeout(renderGrid, 180);
+    setTimeout(applyFilters, 180);
   }
 });
 
-document.getElementById('sortChips').addEventListener('click', (e)=>{
-  const chip = e.target.closest('.chip');
-  if(!chip) return;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  chip.classList.add('active');
-  const sort = chip.dataset.sort;
-  currentData = [...DATA].sort((a,b)=>{
-    if(sort==='rating') return b.rating - a.rating;
-    if(sort==='popularity') return b.popularity - a.popularity;
-    if(sort==='recent') return b.year - a.year;
-    return 0;
-  });
-  renderGrid();
-});
-
-// ¡LA SOLUCIÓN ESTÁ AQUÍ!
-// Esperamos a que los datos carguen antes de dibujar la página
+// --- Inicialización final ---
 loadData().then(() => {
-  // Ahora sí, guardamos los datos
-  currentData = [...DATA];
   heroPool = [...DATA].sort((a,b)=>b.rating-a.rating).slice(0,5);
-  
-  // Escondemos el mensaje de "Cargando series..."
   const loadingState = document.getElementById('loadingState');
   if(loadingState) loadingState.classList.add('hidden');
 
-  // Ahora sí dibujamos todo con la información lista
   renderKPIs();
   renderDonut();
   renderArea();
   renderHero();
-  renderGrid();
+  applyFilters(); // Reemplazamos renderGrid() por applyFilters() para aplicar límite de inicio
 }).catch(err => {
   console.error("Error al cargar los datos:", err);
 });
