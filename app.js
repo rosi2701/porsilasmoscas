@@ -2,11 +2,13 @@ function formatVotes(n){
   if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + "K";
   return String(n);
 }
+
 function ratingTier(r){
   if(r >= 8.75) return "Sobresaliente";
   if(r >= 8.65) return "Excelente";
   return "Muy bueno";
 }
+
 const TIER_COLOR = {"Sobresaliente":"#F7B955","Excelente":"#DD4F9B","Muy bueno":"#7C5CC9"};
 const TIER_ORDER = ["Excelente","Muy bueno","Sobresaliente"];
 
@@ -16,9 +18,12 @@ const shareIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const closeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 const starOutline = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-let currentData = [...DATA];
+// Las inicializamos vacías para esperar al JSON
+let currentData = [];
 const favorites = new Set();
 const hidden = new Set();
+let heroIndex = 0;
+let heroPool = [];
 
 function renderKPIs(){
   const total = DATA.length;
@@ -131,8 +136,6 @@ function renderArea(){
   });
 }
 
-let heroIndex = 0;
-const heroPool = [...DATA].sort((a,b)=>b.rating-a.rating).slice(0,5);
 function renderHero(){
   const d = heroPool[heroIndex];
   const bgUrl = d.backdrop ? (BACKDROP_BASE + d.backdrop) : (IMG_BASE + d.poster);
@@ -140,14 +143,17 @@ function renderHero(){
   document.getElementById('heroTitle').textContent = d.title;
   document.getElementById('heroRating').textContent = d.rating.toFixed(1);
 }
+
 document.getElementById('heroPrev').addEventListener('click', ()=>{
   heroIndex = (heroIndex - 1 + heroPool.length) % heroPool.length;
   renderHero();
 });
+
 document.getElementById('heroNext').addEventListener('click', ()=>{
   heroIndex = (heroIndex + 1) % heroPool.length;
   renderHero();
 });
+
 document.getElementById('heroCta').addEventListener('click', ()=>{
   document.getElementById('grid').scrollIntoView({ behavior:'smooth', block:'start' });
 });
@@ -230,8 +236,23 @@ document.getElementById('sortChips').addEventListener('click', (e)=>{
   renderGrid();
 });
 
-renderKPIs();
-renderDonut();
-renderArea();
-renderHero();
-renderGrid();
+// ¡LA SOLUCIÓN ESTÁ AQUÍ!
+// Esperamos a que los datos carguen antes de dibujar la página
+loadData().then(() => {
+  // Ahora sí, guardamos los datos
+  currentData = [...DATA];
+  heroPool = [...DATA].sort((a,b)=>b.rating-a.rating).slice(0,5);
+  
+  // Escondemos el mensaje de "Cargando series..."
+  const loadingState = document.getElementById('loadingState');
+  if(loadingState) loadingState.classList.add('hidden');
+
+  // Ahora sí dibujamos todo con la información lista
+  renderKPIs();
+  renderDonut();
+  renderArea();
+  renderHero();
+  renderGrid();
+}).catch(err => {
+  console.error("Error al cargar los datos:", err);
+});
