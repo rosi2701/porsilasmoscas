@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniToons! — Dashboard de series animadas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Carter+One&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="page">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <h1 class="display">AniToons!</h1>
+        <p>Análisis de las series animadas mejor calificadas</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero section -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-scrim"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Dashboard de series animadas</p>
+      <h2 class="hero-headline">Animación<br>sin límites</h2>
+      <p class="hero-sub">Explora el ranking de las series animadas mejor calificadas según TMDB, con datos de puntuación, popularidad y país de origen.</p>
+      <button class="hero-cta" id="heroCta">
+        Explorar catálogo
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </button>
+    </div>
+    <div class="hero-now-card">
+      <p class="hero-now-label">Mejor calificada ahora</p>
+      <p class="hero-now-title" id="heroTitle">-</p>
+      <div class="hero-now-row">
+        <span class="hero-now-rating" id="heroRating">-</span>
+        <div class="hero-now-nav">
+          <button id="heroPrev" title="Anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button id="heroNext" title="Siguiente">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPIs -->
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Charts -->
+  <section class="charts">
+    <div class="chart-card">
+      <h3>Distribución por calificación</h3>
+      <p class="chart-caption">Series agrupadas por nivel de puntuación</p>
+      <div class="donut-wrap">
+        <canvas id="donutChart"></canvas>
+        <div class="donut-center">
+          <div class="big" id="donutTotal">0</div>
+          <div class="small">SERIES</div>
+        </div>
+      </div>
+      <div class="legend-row" id="donutLegend"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Calificación vs. popularidad</h3>
+      <p class="chart-caption">Top series - la popularidad no siempre acompaña a la calificación</p>
+      <div class="area-wrap">
+        <canvas id="areaChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toolbar -->
+  <section class="toolbar">
+    <div class="toolbar-left">
+      <h3>Catálogo de series</h3>
+      <p class="toolbar-sub" id="resultCount">Cargando series...</p>
+    </div>
+    <div class="toolbar-right">
+      <!-- Buscador -->
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Buscar serie...">
+      </div>
+      <!-- Filtros de país -->
+      <div class="filter-chips" id="countryChips">
+        <div class="chip active" data-country="all">Todos</div>
+        <div class="chip" data-country="JP">JP Japón</div>
+        <div class="chip" data-country="US">US EE.UU.</div>
+      </div>
+      <!-- Filtro de favoritos -->
+      <div class="chip fav-chip" id="favFilterBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Mis favoritos
+      </div>
+      <!-- Ordenar -->
+      <div class="sort-chips" id="sortChips">
+        <div class="chip active" data-sort="rating">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Mejor calificación
+        </div>
+        <div class="chip" data-sort="popularity">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Más popular
+        </div>
+        <div class="chip" data-sort="recent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Más reciente
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading state -->
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <p>Cargando series...</p>
+  </div>
+
+  <!-- Grid -->
+  <section class="grid" id="grid"></section>
+
+  <!-- Paginación -->
+  <nav class="pagination" id="pagination"></nav>
+
+  <footer class="footer">
+    Datos obtenidos vía <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB API</a> . Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.
+  </footer>
+
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
