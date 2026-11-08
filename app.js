@@ -1,6 +1,3 @@
-/* ---------------------------------------------------
-   Helpers
---------------------------------------------------- */
 function formatVotes(n){
   if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + "K";
   return String(n);
@@ -20,9 +17,6 @@ const shareIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const closeIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 const starOutline = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-/* ---------------------------------------------------
-   Estado global
---------------------------------------------------- */
 const favorites    = new Set();
 const hidden       = new Set();
 let heroIndex      = 0;
@@ -35,11 +29,8 @@ let showOnlyFavs   = false;
 
 const PER_PAGE     = 15;
 let currentPage    = 1;
-let lastFiltered   = [];   // guarda el array filtrado+ordenado más reciente
+let lastFiltered   = [];  
 
-/* ---------------------------------------------------
-   KPI cards
---------------------------------------------------- */
 function renderKPIs(){
   const total = DATA.length;
   if(total === 0) return;
@@ -62,16 +53,13 @@ function renderKPIs(){
     </div>`).join('');
 }
 
-/* ---------------------------------------------------
-   Donut chart — con empty state
---------------------------------------------------- */
 let donutInstance = null;
 function renderDonut(){
   const wrap   = document.getElementById('donutChart').parentElement;
   const legend = document.getElementById('donutLegend');
 
   if(DATA.length === 0){
-    // Empty state: oculta canvas y muestra mensaje
+
     document.getElementById('donutChart').style.display = 'none';
     document.getElementById('donutTotal').closest('.donut-center').style.display = 'none';
     legend.innerHTML = '';
@@ -87,7 +75,6 @@ function renderDonut(){
     return;
   }
 
-  // Limpia empty state si existía
   wrap.querySelector('.chart-empty')?.remove();
   document.getElementById('donutChart').style.display = '';
   document.getElementById('donutTotal').closest('.donut-center').style.display = '';
@@ -124,9 +111,6 @@ function renderDonut(){
     </div>`).join('');
 }
 
-/* ---------------------------------------------------
-   Area chart — con empty state
---------------------------------------------------- */
 let areaInstance = null;
 function renderArea(){
   const wrap = document.getElementById('areaChart').parentElement;
@@ -168,7 +152,7 @@ function renderArea(){
           fill:true, tension:0.4, pointRadius:0, borderWidth:2.5 },
         { label:'Popularidad (escala)', data:popScaled,
           borderColor:'#7C5CC9', backgroundColor:'rgba(124,92,201,0.18)',
-          fill:true, tension:0.4, pointRadius:0, borderWidth:2.5 }
+          fill:true, tension:0.4, pointRadius:0, borderWidth:1.5 }
       ]
     },
     options:{
@@ -180,16 +164,51 @@ function renderArea(){
       },
       scales:{
         x:{ title:{display:true,text:'Posición en el ranking',font:{size:10.5}},
-            grid:{display:false}, ticks:{font:{size:10}} },
+            grid:{display:false},
+            ticks:{ font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:20 } },
         y:{ display:false, min:0, max:110 }
       }
     }
   });
 }
 
-/* ---------------------------------------------------
-   Hero section
---------------------------------------------------- */
+let decadeInstance = null;
+function renderDecades(){
+  const canvas = document.getElementById('decadeChart');
+  const counts = {};
+  DATA.forEach(d=>{
+    if(!d.year) return;
+    const dec = Math.floor(d.year/10)*10;
+    counts[dec] = (counts[dec]||0) + 1;
+  });
+  const decades = Object.keys(counts).map(Number).sort((a,b)=>a-b);
+
+  if(decadeInstance) decadeInstance.destroy();
+  decadeInstance = new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels: decades.map(d=>d+'s'),
+      datasets:[{
+        data: decades.map(d=>counts[d]),
+        backgroundColor:'#DD4F9B',
+        borderRadius:8,
+        maxBarThickness:42
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:(c)=>` ${c.raw} series` }}
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:11}} },
+        y:{ beginAtZero:true, ticks:{font:{size:10}}, grid:{color:'#ECE9F5'} }
+      }
+    }
+  });
+}
+
 function renderHero(){
   const d = heroPool[heroIndex];
   const bgUrl = d.backdrop ? (BACKDROP_BASE + d.backdrop) : (IMG_BASE + d.poster);
@@ -209,9 +228,6 @@ document.getElementById('heroCta').addEventListener('click', ()=>{
   document.getElementById('grid').scrollIntoView({ behavior:'smooth', block:'start' });
 });
 
-/* ---------------------------------------------------
-   Card template — incluye barra de calificación
---------------------------------------------------- */
 function cardTemplate(d, idx){
   const tier  = ratingTier(d.rating);
   const isFav = favorites.has(d.id);
@@ -242,9 +258,6 @@ function cardTemplate(d, idx){
     </article>`;
 }
 
-/* ---------------------------------------------------
-   Paginación
---------------------------------------------------- */
 function renderPagination(totalItems){
   const nav       = document.getElementById('pagination');
   const totalPages = Math.ceil(totalItems / PER_PAGE);
@@ -254,7 +267,6 @@ function renderPagination(totalItems){
 
   const pages = [];
 
-  // Siempre página 1
   pages.push(currentPage === 1
     ? `<button class="pag-btn active" disabled>1</button>`
     : `<button class="pag-btn" data-page="1">1</button>`);
@@ -262,7 +274,6 @@ function renderPagination(totalItems){
   if(currentPage > 3)
     pages.push(`<span class="pag-dots">…</span>`);
 
-  // Páginas cercanas a la actual
   for(let p = Math.max(2, currentPage-1); p <= Math.min(totalPages-1, currentPage+1); p++){
     pages.push(p === currentPage
       ? `<button class="pag-btn active" disabled>${p}</button>`
@@ -272,7 +283,6 @@ function renderPagination(totalItems){
   if(currentPage < totalPages - 2)
     pages.push(`<span class="pag-dots">…</span>`);
 
-  // Siempre última página
   if(totalPages > 1){
     pages.push(currentPage === totalPages
       ? `<button class="pag-btn active" disabled>${totalPages}</button>`
@@ -295,22 +305,17 @@ document.getElementById('pagination').addEventListener('click', e=>{
   document.getElementById('grid').scrollIntoView({ behavior:'smooth', block:'start' });
 });
 
-/* ---------------------------------------------------
-   renderPage — dibuja la página actual de lastFiltered
---------------------------------------------------- */
 function renderPage(){
   const gridEl     = document.getElementById('grid');
   const total      = lastFiltered.length;
   const totalPages = Math.ceil(total / PER_PAGE);
 
-  // Corrige página si quedó fuera de rango tras un filtro
   if(currentPage > totalPages && totalPages > 0) currentPage = totalPages;
   if(currentPage < 1) currentPage = 1;
 
   const start   = (currentPage - 1) * PER_PAGE;
   const pageItems = lastFiltered.slice(start, start + PER_PAGE);
 
-  // Contador
   const from = total === 0 ? 0 : start + 1;
   const to   = Math.min(start + PER_PAGE, total);
   document.getElementById('resultCount').textContent =
@@ -318,7 +323,6 @@ function renderPage(){
       ? 'Sin resultados'
       : `Mostrando ${from}–${to} de ${total} series`;
 
-  // Grid
   if(total === 0){
     gridEl.innerHTML = `
       <div class="empty-state">
@@ -335,9 +339,6 @@ function renderPage(){
   renderPagination(total);
 }
 
-/* ---------------------------------------------------
-   applyFilters — filtra + ordena + resetea página
---------------------------------------------------- */
 function applyFilters(){
   lastFiltered = DATA.filter(d=>{
     if(hidden.has(d.id)) return false;
@@ -352,13 +353,10 @@ function applyFilters(){
     return 0;
   });
 
-  currentPage = 1;   // siempre vuelve a página 1 al cambiar un filtro
+  currentPage = 1; 
   renderPage();
 }
 
-/* ---------------------------------------------------
-   resetFilters — botón del empty state
---------------------------------------------------- */
 function resetFilters(){
   currentSearch  = "";
   currentCountry = "all";
@@ -375,9 +373,6 @@ function resetFilters(){
   applyFilters();
 }
 
-/* ---------------------------------------------------
-   Event listeners — filtros
---------------------------------------------------- */
 document.getElementById('searchInput').addEventListener('input', e=>{
   currentSearch = e.target.value.toLowerCase();
   applyFilters();
@@ -408,9 +403,6 @@ document.getElementById('sortChips').addEventListener('click', e=>{
   applyFilters();
 });
 
-/* ---------------------------------------------------
-   Event listener — acciones en tarjetas
---------------------------------------------------- */
 document.getElementById('grid').addEventListener('click', e=>{
   const btn = e.target.closest('.mini-btn');
   if(!btn) return;
@@ -442,9 +434,6 @@ document.getElementById('grid').addEventListener('click', e=>{
   }
 });
 
-/* ---------------------------------------------------
-   Init — espera el JSON antes de pintar todo
---------------------------------------------------- */
 loadData()
   .then(()=>{
     document.getElementById('loadingState').classList.add('hidden');
@@ -454,6 +443,7 @@ loadData()
     renderKPIs();
     renderDonut();
     renderArea();
+    renderDecades();
     renderHero();
     applyFilters();
   })
@@ -463,3 +453,4 @@ loadData()
       `<p style="color:#DD4F9B">⚠️ No se pudo cargar animated_series.json.<br>
        Asegúrate de que el archivo está en el mismo repositorio.</p>`;
   });
+
