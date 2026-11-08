@@ -34,7 +34,7 @@ body {
   * { animation: none !important; transition: none !important; }
 }
 
-/* --------- Topbar --------- */
+
 .topbar {
   display: flex;
   align-items: center;
@@ -58,7 +58,7 @@ body {
 
 .brand-text p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); font-weight: 500; }
 
-/* --------- Hero section --------- */
+
 .hero {
   position: relative;
   border-radius: 28px;
@@ -130,8 +130,6 @@ body {
 
 .hero-cta:hover { transform: translateY(-2px); }
 
-.hero-cta svg { transform: rotate(90deg); }
-
 .hero-now-card {
   position: absolute;
   right: 32px;
@@ -175,7 +173,7 @@ body {
   .hero-now-card { left: 24px; right: 24px; bottom: 20px; }
 }
 
-/* --------- KPI cards --------- */
+
 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 26px; }
 
 .kpi-card {
@@ -204,8 +202,6 @@ body {
 @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } }
 
-/* --------- Charts --------- */
-.charts { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; margin-bottom: 26px; }
 
 .chart-card {
   background: var(--surface);
@@ -218,6 +214,20 @@ body {
 .chart-card h3 { margin: 0 0 2px; font-size: 15.5px; }
 .chart-card .chart-caption { font-size: 12px; color: var(--ink-soft); margin: 0 0 14px; }
 
+/* Gráfico grande */
+.chart-wide { margin-bottom: 18px; }
+.area-wrap { height: 460px; }
+
+/* Fila inferior con dos gráficos */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.bar-wrap { height: 250px; }
+
 .donut-wrap { position: relative; height: 200px; display: flex; align-items: center; justify-content: center; }
 .donut-center { position: absolute; text-align: center; }
 .donut-center .big { font-family: 'Carter One', cursive; font-size: 26px; color: var(--ink); }
@@ -227,9 +237,7 @@ body {
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; }
 .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
-.area-wrap { height: 236px; }
 
-/* --- Chart empty states --- */
 .chart-empty {
   display: flex;
   flex-direction: column;
@@ -244,9 +252,12 @@ body {
 .chart-empty p { margin: 0; font-size: 13px; font-weight: 500; }
 .chart-empty span { font-size: 11.5px; opacity: .7; }
 
-@media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .area-wrap { height: 340px; }
+}
 
-/* --------- Toolbar --------- */
+
 .toolbar {
   display: flex;
   align-items: flex-start;
@@ -260,7 +271,7 @@ body {
 .toolbar-sub { font-size: 12px; color: var(--ink-soft); margin: 2px 0 0; }
 .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-/* Buscador */
+
 .search-box {
   display: flex;
   align-items: center;
@@ -284,7 +295,7 @@ body {
   color: var(--ink);
 }
 
-/* Chips */
+
 .filter-chips, .sort-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .chip {
@@ -310,7 +321,7 @@ body {
 .chip.fav-chip.active { background: var(--orange); border-color: var(--orange); color: #fff; }
 .chip.fav-chip.active svg { fill: #fff; }
 
-/* -------- Loading state -------- */
+
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -335,7 +346,7 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* -------- Grid -------- */
+
 .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 10px; }
 
 @media (max-width: 1080px) { .grid { grid-template-columns: repeat(3, 1fr); } }
@@ -358,7 +369,7 @@ body {
 .show-poster-wrap { position: relative; aspect-ratio: 2/3; background: var(--bg); overflow: hidden; }
 .show-poster-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Barra de calificación encima del póster (parte inferior) */
+
 .rating-bar-wrap {
   position: absolute;
   bottom: 0;
@@ -448,7 +459,6 @@ body {
 .mini-btn.fav.active { background: var(--orange-soft); color: var(--orange); border-color: var(--orange); }
 .mini-btn.fav.active svg { fill: var(--orange); }
 
-/* --------- Empty state (grilla) --------- */
 .empty-state {
   grid-column: 1 / -1;
   display: flex;
@@ -479,7 +489,6 @@ body {
 
 .empty-state button:hover { opacity: .85; }
 
-/* --------- Paginación --------- */
 .pagination {
   display: flex;
   align-items: center;
@@ -516,7 +525,6 @@ body {
 
 .pag-dots { color: var(--ink-soft); padding: 0 4px; font-size: 13px; line-height: 36px; }
 
-/* --------- Footer --------- */
 .footer {
   margin-top: 34px;
   text-align: center;
