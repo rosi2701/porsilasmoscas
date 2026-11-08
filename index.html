@@ -31,8 +31,7 @@
       <h2 class="hero-headline">Animación<br>sin límites</h2>
       <p class="hero-sub">Explora el ranking de las series animadas mejor calificadas según TMDB, con datos de puntuación, popularidad y país de origen.</p>
       <button class="hero-cta" id="heroCta">
-        Explorar catálogo
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        Explorar catálogo &darr;
       </button>
     </div>
     <div class="hero-now-card">
@@ -54,7 +53,17 @@
 
   <section class="kpis" id="kpis"></section>
 
-  <section class="charts">
+  <!-- Gráfico grande -->
+  <section class="chart-card chart-wide">
+    <h3>Calificación vs. popularidad</h3>
+    <p class="chart-caption">Top series - la popularidad no siempre acompaña a la calificación</p>
+    <div class="area-wrap">
+      <canvas id="areaChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Fila con dos gráficos -->
+  <section class="charts-row">
     <div class="chart-card">
       <h3>Distribución por calificación</h3>
       <p class="chart-caption">Series agrupadas por nivel de puntuación</p>
@@ -67,14 +76,16 @@
       </div>
       <div class="legend-row" id="donutLegend"></div>
     </div>
+
     <div class="chart-card">
-      <h3>Calificación vs. popularidad</h3>
-      <p class="chart-caption">Top series - la popularidad no siempre acompaña a la calificación</p>
-      <div class="area-wrap">
-        <canvas id="areaChart"></canvas>
+      <h3>Series por década</h3>
+      <p class="chart-caption">Cantidad de series según su año de estreno</p>
+      <div class="bar-wrap">
+        <canvas id="decadeChart"></canvas>
       </div>
     </div>
   </section>
+
   <section class="toolbar">
     <div class="toolbar-left">
       <h3>Catálogo de series</h3>
